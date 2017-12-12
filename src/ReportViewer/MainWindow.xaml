@@ -5,8 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ReportViewer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="ReportViewer" 
+        Height="350" 
+        Width="525"
+        Drop="windowFileDrow"
+        AllowDrop="True" 
+        Icon="chart.ico" 
+        WindowState="Maximized" >
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Margin="15,15,0,15" Orientation="Horizontal">
+            <Image Height="32" Width="32" Source="chart.ico"/>
+            <TextBlock Text="Reprot Viewer v1.0.0.0 by Verloka Vadim" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0"/>
+        </StackPanel>
+        <DataGrid x:Name="dgReport" Grid.Row="1" AutoGenerateColumns="False" HorizontalGridLinesBrush="DarkGray" RowBackground="LightGray" AlternatingRowBackground="White" MouseDoubleClick="dgReportMouseDoubleclick">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Popular" Binding="{Binding Path=VisitCount}" Width="55" CanUserResize="False" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Date" Binding="{Binding Path=Date}" Width="120" IsReadOnly="True" />
+                <DataGridTextColumn Header="Title" Binding="{Binding Path=Title}" Width="200" IsReadOnly="True"/>
+                <DataGridHyperlinkColumn Header="Url" Binding="{Binding Path=Url}" Width="*" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>
