@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 
-namespace Core
+namespace Observer
 {
     public class ChromeBrowser : IBrowser
     {
@@ -22,11 +22,18 @@ namespace Core
         }
         string ExecupteCommand = "Select * From urls";
 
-        string original = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\Google\Chrome\User Data\Default\History";
-        string copy = $@"{Environment.CurrentDirectory}\temp\History";
+        string LocalApplicationData;
+        string original;
+        string copy;
+        string history;
 
-        public ChromeBrowser()
+        public ChromeBrowser(string LocalApplicationData, string history)
         {
+            this.LocalApplicationData = LocalApplicationData;
+            original = $@"{LocalApplicationData}\Google\Chrome\User Data\Default\History";
+            this.history = history;
+            copy = $@"{this.history}\History";
+
             Name = "Chrome";
             MinVersion = "62.0.3202.94";
             HistoryPath = original;
@@ -61,8 +68,8 @@ namespace Core
 
         void SaveCopy()
         {
-            if (!Directory.Exists($@"{Environment.CurrentDirectory}\temp\"))
-                Directory.CreateDirectory($@"{Environment.CurrentDirectory}\temp\");
+            if (!Directory.Exists(history))
+                Directory.CreateDirectory(history);
 
             File.Copy(original, copy, true);
         }

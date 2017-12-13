@@ -1,4 +1,4 @@
-﻿namespace Core
+﻿namespace Observer
 {
     public static class Util
     {

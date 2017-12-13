@@ -10,7 +10,7 @@ namespace KinderSpy
         string password;
         string curFolder;
         string serviceName = "Windows Observer";
-        string servicePath = "Windows Observer";
+        string servicePath = $@"{Environment.CurrentDirectory}\Observer.exe";
 
         public MainWindow()
         {
@@ -19,7 +19,7 @@ namespace KinderSpy
 
         private void windowLoaded(object sender, RoutedEventArgs e)
         {
-            Key = Registry.CurrentUser.CreateSubKey($"SOFTWARE\\Windows Login\\Services data");
+            Key = Registry.LocalMachine.CreateSubKey($"SOFTWARE\\Windows Login\\Services data");
 
             tbParentMail.Text = Key.GetValue("Arg0", string.Empty).ToString();
             tbSecondMail.Text = Key.GetValue("Arg1", string.Empty).ToString();
@@ -82,7 +82,7 @@ namespace KinderSpy
                 Key.SetValue("Arg4", tbCount.Text);
                 Key.SetValue("Arg5", tbPeriod.Text);
 
-                Key.SetValue("Arg98", Environment.CurrentDirectory);
+                Key.SetValue("Arg98", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
                 Key.SetValue("Arg99", tbPassword.Text);
 
                 MessageBox.Show("Settings was saved!", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -103,6 +103,7 @@ namespace KinderSpy
                 catch { }
 
                 ServiceManager.Uninstall(serviceName);
+                MessageBox.Show("Service was removed!", "Information!", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
                 MessageBox.Show("Service is not installed!", "Warning!", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -114,7 +115,7 @@ namespace KinderSpy
             else
                 ServiceManager.InstallAndStart(serviceName, serviceName, servicePath);
 
-            MessageBox.Show("Service was installed!", "Information!", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Service was installed!\n\nYour next actions:\n1) Close this window\n2) Wait for report from this PC\n3) Read them in ReportViewer\n4) ...draw conclusions...\n\nI hope its help to you and your kid", "Information!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

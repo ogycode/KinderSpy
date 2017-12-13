@@ -1,13 +1,13 @@
 ﻿namespace Observer
 {
-    partial class WindowsObserver
+    partial class InstallerForObserver
     {
-        /// <summary> 
+        /// <summary>
         /// Обязательная переменная конструктора.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
+        /// <summary> 
         /// Освободить все используемые ресурсы.
         /// </summary>
         /// <param name="disposing">истинно, если управляемый ресурс должен быть удален; иначе ложно.</param>
@@ -22,29 +22,15 @@
 
         #region Код, автоматически созданный конструктором компонентов
 
-        /// <summary> 
+        /// <summary>
         /// Требуемый метод для поддержки конструктора — не изменяйте 
         /// содержимое этого метода с помощью редактора кода.
         /// </summary>
         private void InitializeComponent()
         {
-            this.console = new System.Diagnostics.EventLog();
-            ((System.ComponentModel.ISupportInitialize)(this.console)).BeginInit();
-            // 
-            // console
-            // 
-            this.console.Log = "Application";
-            this.console.Source = "Overseer";
-            // 
-            // WindowsObserver
-            // 
-            this.ServiceName = "Windows Observer";
-            ((System.ComponentModel.ISupportInitialize)(this.console)).EndInit();
-
+            components = new System.ComponentModel.Container();
         }
 
         #endregion
-
-        private System.Diagnostics.EventLog console;
     }
 }
