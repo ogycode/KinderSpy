@@ -2,35 +2,33 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Observer
 {
     public partial class WindowsObserver : ServiceBase
     {
-        private System.Timers.Timer timer;
+        const bool IS_DEBUG = false;
 
-        public string SendTo;
-        private string SendFrom;
-        private string SendFromPassword;
-        private string UserName;
-        private int ReportCount;
-        private int ReportTimeoutMinutes;
-        
+        System.Timers.Timer timer;
+
+        string SendTo;
+        string SendFrom;
+        string SendFromPassword;
+        string UserName;
+        int ReportCount;
+        int ReportTimeoutMinutes;
+
         ChromeBrowser cb;
         int iteration;
 
         string LocalApplicationDataFolder;
+        string TempPath;
         string ReportFolder;
         string HistoryCopyFolder;
 
@@ -41,7 +39,7 @@ namespace Observer
 
         void SendReport(string browserName, string report)
         {
-            console.WriteEntry($"SendReport browserName={browserName}; report={report}");
+            LOG($"SendReport browserName={browserName}; report={report}");
 
             var fromAddress = new MailAddress(SendFrom, $"Report from {UserName}");
             var toAddress = new MailAddress(SendTo, "Parent");
@@ -68,7 +66,7 @@ namespace Observer
             using (var message = new MailMessage(fromAddress, toAddress))
             {
                 message.Subject = $"Report from {UserName}";
-                message.Body = "Open report in ReportViewer";
+                message.Body = "Open report in ReportViewer (https://kinderspy.pp.ua)";
 
                 message.Attachments.Add(attachment);
 
@@ -81,17 +79,19 @@ namespace Observer
         }
         void SaveReport(string browserName, List<HistoryElement> history)
         {
+            LOG($"SaveReport browserName={browserName}; history.Count={history.Count}");
+
             if (!Directory.Exists($@"{ReportFolder}\{browserName} "))
                 Directory.CreateDirectory($@"{ReportFolder}\{browserName} ");
 
             using (StreamWriter sw = File.CreateText($@"{ReportFolder}\{browserName}\{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString().Replace(':', '_')}.json"))
                 sw.Write(JsonConvert.SerializeObject(history));
-
-            console.WriteEntry($"SaveReport browserName={browserName}; history.Count={history.Count}");
         }
         string PrepareReport(string browserName)
         {
             string path = $@"{ReportFolder}\{browserName}\{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString().Replace(':', '_')}.json";
+
+            LOG($"PrepareReport browserName={browserName}; path={path}");
 
             List<HistoryElement> listForWrite = new List<HistoryElement>();
 
@@ -111,8 +111,6 @@ namespace Observer
             using (StreamWriter sw = File.CreateText(path))
                 sw.Write(JsonConvert.SerializeObject(listForWrite));
 
-            console.WriteEntry($"PrepareReport browserName={browserName}; path={path}");
-
             return path;
         }
 
@@ -123,6 +121,12 @@ namespace Observer
 
             if (send)
                 SendReport(cb.Name, PrepareReport(cb.Name));
+        }
+
+        void LOG(string msg)
+        {
+            if (IS_DEBUG)
+                logger.WriteEntry(msg);
         }
 
         protected override void OnStart(string[] args)
@@ -137,12 +141,13 @@ namespace Observer
             ReportTimeoutMinutes = Key.GetValue("Arg5", string.Empty).ToString().ToInt(1);
 
             LocalApplicationDataFolder = Key.GetValue("Arg98", string.Empty).ToString();
-            ReportFolder = $@"{LocalApplicationDataFolder}\{Guid.NewGuid().ToString()}\report\";
-            HistoryCopyFolder = $@"{LocalApplicationDataFolder}\{Guid.NewGuid().ToString()}\temp";
+            TempPath = Key.GetValue("Arg97", string.Empty).ToString();
+            ReportFolder = $@"{TempPath}\{Guid.NewGuid().ToString()}\";
+            HistoryCopyFolder = $@"{TempPath}\{Guid.NewGuid().ToString()}\";
 
             cb = new ChromeBrowser(LocalApplicationDataFolder, HistoryCopyFolder);
 
-            console.WriteEntry($"LocalApplicationDataFolder={LocalApplicationDataFolder}; ReportFolder={ReportFolder}; HistoryCopyFolder={HistoryCopyFolder};");
+            LOG($"LocalApplicationDataFolder={LocalApplicationDataFolder}; ReportFolder={ReportFolder}; HistoryCopyFolder={HistoryCopyFolder};");
 
             timer = new System.Timers.Timer(1000 * 60 * ReportTimeoutMinutes)
             {

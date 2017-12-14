@@ -17,16 +17,27 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Margin="15,15,0,15" Orientation="Horizontal">
                 <Image Source="insurance.ico" Height="32" Width="32"/>
                 <TextBlock Text="KinderSpy v1.0.0.0 by Verloka Vadim" FontSize="18" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0"/>
             </StackPanel>
-            <StackPanel Grid.Row="1" Margin="0,0,0,10">
-                <TextBlock Text="Kid's name" HorizontalAlignment="Left" Margin="20,5" FontSize="14"/>
-                <TextBox x:Name="tbKidName" Margin="20,0" TextWrapping="NoWrap"/>
-
-                <GroupBox Header="Report setting" Margin="20,5">
+            <Grid Grid.Row="1" Margin="0,0,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                    <TextBlock Text="Kid's name" HorizontalAlignment="Left" Margin="20,5" FontSize="14"/>
+                    <TextBox x:Name="tbKidName" Margin="20,0" TextWrapping="NoWrap"/>
+                </StackPanel>
+                <GroupBox Header="Report setting" Margin="20,5,5,5" Grid.Column="0" Grid.Row="1" Padding="5">
                     <StackPanel>
                         <TextBlock Text="Period of creating reports (minutes, numbers only)" HorizontalAlignment="Left" Margin="0,5" FontSize="14"/>
                         <TextBox x:Name="tbPeriod" TextWrapping="NoWrap"/>
@@ -38,12 +49,10 @@
                         </ComboBox>
                     </StackPanel>
                 </GroupBox>
-
-                <GroupBox Header="Send general report to EMail" Margin="20,5">
+                <GroupBox Header="Send general report to EMail" Margin="5,5,20,5" Grid.Column="1" Grid.Row="1" Padding="5">
                     <StackPanel>
                         <TextBlock Text="Parent EMail" HorizontalAlignment="Left" FontSize="14" Margin="0,5"/>
                         <TextBox x:Name="tbParentMail" TextWrapping="NoWrap"/>
-
                         <TextBlock Text="GMail account, report will be send" HorizontalAlignment="Left" Margin="0,5,0,0" FontSize="14"/>
                         <TextBlock Text="EMail" HorizontalAlignment="Left" Margin="0,2,0,5" FontSize="14"/>
                         <TextBox x:Name="tbSecondMail" TextWrapping="NoWrap"/>
@@ -51,20 +60,30 @@
                         <TextBox x:Name="tbSeconMailPass" TextWrapping="NoWrap"/>
                     </StackPanel>
                 </GroupBox>
-
-                <TextBlock Text="Lock this application via password" HorizontalAlignment="Left" Margin="20,5" FontSize="14"/>
-                <TextBox x:Name="tbPassword" Margin="20,0" TextWrapping="NoWrap"/>
-            </StackPanel>
+                <StackPanel Grid.Row="2" Grid.ColumnSpan="2">
+                    <TextBlock Text="Lock this application via password" HorizontalAlignment="Left" Margin="20,5" FontSize="14"/>
+                    <TextBox x:Name="tbPassword" Margin="20,0,20,5" TextWrapping="NoWrap"/>
+                    <CheckBox x:Name="cbFromUSB" Margin="20,5" FontSize="14" Content="Install from USB-flash disk" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
+                </StackPanel>
+            </Grid>
             <Grid Grid.Row="2" Margin="0,0,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="btnRemove" Grid.Column="0" Content="Delete service" Margin="10,5,0,5" Click="btnRemoveClick"/>
-                <Button x:Name="btnSave" Grid.Column="1" Content="Save settings" Margin="10,5" Click="btnSaveClick"/>
-                <Button x:Name="btnSetup" Grid.Column="2" Content="Install service" Margin="0,5,10,5" Click="btnSetupClic"/>
+                <Button x:Name="btnSetup" Grid.Column="0" Grid.Row="0" Content="Install" Margin="5" Click="btnSetupClic"/>
+                <Button x:Name="btnRemove" Grid.Column="0" Grid.Row="1" Content="Delete" Margin="5" Click="btnRemoveClick"/>
+                <Button x:Name="btnSave" Grid.Column="1" Grid.Row="0" Content="Save" Margin="5" Click="btnSaveClick"/>
+                <Button x:Name="btnClear" Grid.Column="1" Grid.Row="1" Content="Clear" Margin="5"  Click="btnClearClick"/>
+                <Button x:Name="btnSavePrefab" Grid.Column="1" Grid.Row="2" Content="Save prefab" Margin="5"  Click="btnSavePrefabClick"/>
+                <Button x:Name="btnLoadPrefab" Grid.Column="0" Grid.Row="2" Content="Load prefab" Margin="5"  Click="btnLoadPrefabClick"/>
             </Grid>
+            <TextBlock x:Name="tbStatus" Grid.Row="3" Text="Status: unknown" Padding="3" Foreground="White" Background="Red"/>
         </Grid>
         <Grid x:Name="gridPassword" Background="WhiteSmoke" Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">

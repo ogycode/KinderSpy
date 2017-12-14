@@ -28,23 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.console = new System.Diagnostics.EventLog();
-            ((System.ComponentModel.ISupportInitialize)(this.console)).BeginInit();
+            this.logger = new System.Diagnostics.EventLog();
+            ((System.ComponentModel.ISupportInitialize)(this.logger)).BeginInit();
             // 
-            // console
+            // logger
             // 
-            this.console.Log = "Application";
-            this.console.Source = "Overseer";
+            this.logger.Log = "Application";
+            this.logger.Source = "Overseer";
             // 
             // WindowsObserver
             // 
             this.ServiceName = "Windows Observer";
-            ((System.ComponentModel.ISupportInitialize)(this.console)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.logger)).EndInit();
 
         }
 
         #endregion
 
-        private System.Diagnostics.EventLog console;
+        private System.Diagnostics.EventLog logger;
     }
 }
