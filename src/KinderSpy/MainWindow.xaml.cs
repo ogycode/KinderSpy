@@ -119,7 +119,7 @@ namespace KinderSpy
 
             FileInfo[] files = dir.GetFiles();
             foreach (FileInfo file in files)
-                file.CopyTo(Path.Combine(destDirName, file.Name), false);
+                file.CopyTo(Path.Combine(destDirName, file.Name), true);
 
             if (copySubDirs)
                 foreach (DirectoryInfo subdir in dirs)
@@ -151,9 +151,7 @@ namespace KinderSpy
         private void btnSaveClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(tbPassword.Text))
-            {
                 MessageBox.Show("If you are not set a password for application your kid can take access to this spy-tool and remove them! Be careful!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
 
             if (CheckData(true, true))
             {
@@ -209,12 +207,12 @@ namespace KinderSpy
                     if (cbFromUSB.IsChecked.Value)
                     {
                         DirectoryCopy(from, to, true);
-                        ServiceManager.InstallAndStart(serviceName, serviceName, servicePathUSB);
+                        ServiceManager.InstallAndStart(serviceName, serviceName, servicePathUSB, ServiceBootFlag.AutoStart);
                         MessageBox.Show($"Service was installed!\n({to})\n\nYour next actions:\n1) Close this window\n2) Wait for report from this PC\n3) Read them in ReportViewer\n4) ...draw conclusions...\n\nI hope its help to you and your kid", "Information!", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
-                        ServiceManager.InstallAndStart(serviceName, serviceName, servicePath);
+                        ServiceManager.InstallAndStart(serviceName, serviceName, servicePath, ServiceBootFlag.AutoStart);
                         MessageBox.Show($"Service was installed!\n({from})\n\nYour next actions:\n1) Close this window\n2) Wait for report from this PC\n3) Read them in ReportViewer\n4) ...draw conclusions...\n\nI hope its help to you and your kid", "Information!", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }

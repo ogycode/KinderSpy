@@ -84,6 +84,7 @@ namespace KinderSpy
     {
         private const int STANDARD_RIGHTS_REQUIRED = 0xF0000;
         private const int SERVICE_WIN32_OWN_PROCESS = 0x00000010;
+        private const int SERVICE_INTERACTIVE_PROCESS = 0x00000100;
 
         [StructLayout(LayoutKind.Sequential)]
         private class SERVICE_STATUS
@@ -98,18 +99,23 @@ namespace KinderSpy
         }
 
         [DllImport("advapi32.dll", EntryPoint = "OpenSCManagerA")]
-        private static extern IntPtr OpenSCManager(string lpMachineName, string
-        lpDatabaseName, ServiceManagerRights dwDesiredAccess);
-        [DllImport("advapi32.dll", EntryPoint = "OpenServiceA",
-        CharSet = CharSet.Ansi)]
-        private static extern IntPtr OpenService(IntPtr hSCManager, string
-        lpServiceName, ServiceRights dwDesiredAccess);
+        private static extern IntPtr OpenSCManager(string lpMachineName, string lpDatabaseName, ServiceManagerRights dwDesiredAccess);
+        [DllImport("advapi32.dll", EntryPoint = "OpenServiceA", CharSet = CharSet.Ansi)]
+        private static extern IntPtr OpenService(IntPtr hSCManager, string lpServiceName, ServiceRights dwDesiredAccess);
         [DllImport("advapi32.dll", EntryPoint = "CreateServiceA")]
-        private static extern IntPtr CreateService(IntPtr hSCManager, string
-        lpServiceName, string lpDisplayName, ServiceRights dwDesiredAccess, int
-        dwServiceType, ServiceBootFlag dwStartType, ServiceError dwErrorControl,
-        string lpBinaryPathName, string lpLoadOrderGroup, IntPtr lpdwTagId, string
-        lpDependencies, string lp, string lpPassword);
+        private static extern IntPtr CreateService(IntPtr hSCManager, 
+                                                   string lpServiceName, 
+                                                   string lpDisplayName, 
+                                                   ServiceRights dwDesiredAccess, 
+                                                   int dwServiceType, 
+                                                   ServiceBootFlag dwStartType, 
+                                                   ServiceError dwErrorControl, 
+                                                   string lpBinaryPathName, 
+                                                   string lpLoadOrderGroup, 
+                                                   IntPtr lpdwTagId, 
+                                                   string lpDependencies, 
+                                                   string lp, 
+                                                   string lpPassword);
         [DllImport("advapi32.dll")]
         private static extern int CloseServiceHandle(IntPtr hSCObject);
         [DllImport("advapi32.dll")]
@@ -118,11 +124,9 @@ namespace KinderSpy
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern int DeleteService(IntPtr hService);
         [DllImport("advapi32.dll")]
-        private static extern int ControlService(IntPtr hService, ServiceControl
-        dwControl, SERVICE_STATUS lpServiceStatus);
+        private static extern int ControlService(IntPtr hService, ServiceControl dwControl, SERVICE_STATUS lpServiceStatus);
         [DllImport("advapi32.dll", EntryPoint = "StartServiceA")]
-        private static extern int StartService(IntPtr hService, int
-        dwNumServiceArgs, int lpServiceArgVectors);
+        private static extern int StartService(IntPtr hService, int dwNumServiceArgs, int lpServiceArgVectors);
 
 
         private ServiceManager()
@@ -177,20 +181,27 @@ namespace KinderSpy
                 CloseServiceHandle(scman);
             }
         }
-        public static void InstallAndStart(string ServiceName, string DisplayName, string FileName)
+        public static void InstallAndStart(string ServiceName, string DisplayName, string FileName, ServiceBootFlag start)
         {
-            IntPtr scman = OpenSCManager(ServiceManagerRights.Connect |
-            ServiceManagerRights.CreateService);
+            IntPtr scman = OpenSCManager(ServiceManagerRights.Connect | ServiceManagerRights.CreateService);
             try
             {
-                IntPtr service = OpenService(scman, ServiceName,
-                ServiceRights.QueryStatus | ServiceRights.Start);
+                IntPtr service = OpenService(scman, ServiceName, ServiceRights.QueryStatus | ServiceRights.Start);
                 if (service == IntPtr.Zero)
                 {
-                    service = CreateService(scman, ServiceName, DisplayName,
-                    ServiceRights.QueryStatus | ServiceRights.Start, SERVICE_WIN32_OWN_PROCESS,
-                    ServiceBootFlag.AutoStart, ServiceError.Normal, FileName, null, IntPtr.Zero,
-                    null, null, null);
+                    service = CreateService(scman, 
+                                            ServiceName, 
+                                            DisplayName, 
+                                            ServiceRights.QueryStatus | ServiceRights.Start, 
+                                            SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS, 
+                                            start, 
+                                            ServiceError.Ignore, 
+                                            FileName, 
+                                            null, 
+                                            IntPtr.Zero,
+                                            null, 
+                                            null, 
+                                            null);
                 }
                 if (service == IntPtr.Zero)
                 {
@@ -215,8 +226,7 @@ namespace KinderSpy
             IntPtr scman = OpenSCManager(ServiceManagerRights.Connect);
             try
             {
-                IntPtr hService = OpenService(scman, Name, ServiceRights.QueryStatus |
-                ServiceRights.Start);
+                IntPtr hService = OpenService(scman, Name, ServiceRights.QueryStatus | ServiceRights.Start);
                 if (hService == IntPtr.Zero)
                 {
                     throw new ApplicationException("Could not open service.");
@@ -240,8 +250,7 @@ namespace KinderSpy
             IntPtr scman = OpenSCManager(ServiceManagerRights.Connect);
             try
             {
-                IntPtr hService = OpenService(scman, Name, ServiceRights.QueryStatus |
-                ServiceRights.Stop);
+                IntPtr hService = OpenService(scman, Name, ServiceRights.QueryStatus | ServiceRights.Stop);
                 if (hService == IntPtr.Zero)
                 {
                     throw new ApplicationException("Could not open service.");
